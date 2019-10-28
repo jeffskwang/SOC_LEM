@@ -8,7 +8,7 @@ import time
 parent = os.getcwd()
 
 #run name
-runname='willis_numerical'
+runname='willis_test1'
 
 #initial condition
 ini_file = 'willis_elev_test.asc'
@@ -116,7 +116,7 @@ def SOC_transfer_function(eta_old,eta_ini,dzdt,SOC_La,SOC_transfer):
     for i in range(0,nrows):
         for j in range(0,ncols):
             if dzdt.reshape(nrows,ncols)[i,j] < 0.0:
-                SOC_transfer.reshape(nrows,ncols)[i,j] = find_SOC_cell(interface.reshape(nrows,ncols)[i,j],dz_ini[i,j,:],SOC_z[i,j,:])     
+                SOC_transfer.reshape(nrows,ncols)[i,j] = find_SOC_cell(interface.reshape(nrows,ncols)[i,j],dz_ini[i,j,:],SOC_z[i,j,:])
             elif dzdt.reshape(nrows,ncols)[i,j] > 0.0:
                 SOC_transfer.reshape(nrows,ncols)[i,j] = SOC_La.reshape(nrows,ncols)[i,j]
                 
