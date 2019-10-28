@@ -8,7 +8,7 @@ import time
 parent = os.getcwd()
 
 #run name
-runname='willis_test'
+runname='willis_numerical'
 
 #initial condition
 ini_file = 'willis_elev_test.asc'
@@ -26,6 +26,8 @@ T = 150. # [yr] Simulation Time
 dt = 1.0 # [yr] model timestep
 hole_function = 0# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
+nz = 100 #dz cells
+Z = 0.5 #max deposition, erosion
 
 #output parameters
 dt_plot = 10. # [yr] plot timestep
@@ -48,11 +50,19 @@ from landlab.utils import structured_grid
 from landlab.io import read_esri_ascii
 #load initial condition
 (grid, eta) = read_esri_ascii(parent + '\\input\\' + ini_file, name='topographic__elevation')
+nrows = grid.number_of_node_rows
+ncols = grid.number_of_node_columns
 #define arrays
 SOC_La = grid.add_ones('node','SOC_La')
 SOC_La *= 0.05
 SOC_transfer = grid.add_zeros('node','SOC_transfer')
-##SOC_z = np.zeros((nx,ny,100)
+SOC_z = np.zeros((nrows,ncols,nz))
+dz_ini = np.zeros((nrows,ncols,nz))
+for i in range(0,nrows):
+    for j in range(0,ncols):
+        dz_ini[i,j,:] = np.linspace(-Z + dz / 2.0, Z - dz / 2.0, nz)
+        SOC_z[i,j,0:50] = C_SOC * np.exp(dz_ini[i,j,0:50] / K_SOC)
+
 #grid size and number of cells
 dx = grid.dx
 dy = grid.dy
@@ -93,11 +103,23 @@ def soil_and_SOC_transport(eta,SOC_La):
 
     return dqda,dqcda
 
+def find_SOC_cell(interface_z,z_coor,SOC):
+    index_locat = (np.abs(z_coor - interface_z)).argmin()
+    SOC_interface = SOC[index_locat]
+    return SOC_interface        
+
 def SOC_transfer_function(eta_old,eta_ini,dzdt,SOC_La,SOC_transfer):
     interface = eta_old - eta_ini - La
-    SOC_transfer[dzdt>0.0] = SOC_La[dzdt>0.0] 
-    SOC_transfer[dzdt<0.0] = C_SOC * np.exp(interface[dzdt<0.0] / K_SOC)
+##    SOC_transfer[dzdt>0.0] = SOC_La[dzdt>0.0] 
+##    SOC_transfer[dzdt<0.0] = C_SOC * np.exp(interface[dzdt<0.0] / K_SOC)
 
+    for i in range(0,nrows):
+        for j in range(0,ncols):
+            if dzdt.reshape(nrows,ncols)[i,j] < 0.0:
+                SOC_transfer.reshape(nrows,ncols)[i,j] = find_SOC_cell(interface.reshape(nrows,ncols)[i,j],dz_ini[i,j,:],SOC_z[i,j,:])     
+            elif dzdt.reshape(nrows,ncols)[i,j] > 0.0:
+                SOC_transfer.reshape(nrows,ncols)[i,j] = SOC_La.reshape(nrows,ncols)[i,j]
+                
     return SOC_transfer
 
 #####################

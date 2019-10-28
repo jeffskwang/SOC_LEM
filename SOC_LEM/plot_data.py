@@ -112,9 +112,8 @@ def plot_difference(x_plot,y_plot,filename,slabel,log_boolean,temp_cmap):
     if log_boolean == 1:
         s[s==0] = np.min(s[s!=0])
     
-    data_holder_ini = s[0,:].reshape(cellsx,cellsy)
-    for t in range (1,s.shape[0]):
-        data_holder = s[int(t),:].reshape(cellsx,cellsy)
+    for t in range (0,s.shape[0]):
+        data_holder = s[int(t),:].reshape(cellsx,cellsy) - s[0,:].reshape(cellsx,cellsy)
         fig = plt.figure(t,figsize = (10.,8.),facecolor='white')
         ax = fig.add_axes([0.0, 0.075, .85, .85])
         cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
