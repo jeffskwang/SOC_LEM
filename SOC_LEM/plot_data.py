@@ -60,21 +60,19 @@ def plot(x_plot,y_plot,filename,slabel,log_boolean,temp_cmap):
     data_holder = np.zeros((cellsx,cellsy))
     if log_boolean == 1:
         s[s==0] = np.min(s[s!=0])
-        
     for t in range (0,s.shape[0]):
-        for x in range(0,int(s.shape[1] ** 0.5)):
-            for y in range(0,int(s.shape[1] ** 0.5)):
-                if log_boolean == 0:
-                    data_holder[x,y] = s[int(t),int(x*s.shape[1] ** 0.5+y)]
-                elif log_boolean == 1:
-                    data_holder[x,y] = np.log10(s[int(t),int(x*s.shape[1] ** 0.5+y)])
+        if log_boolean == 1:
+            data_holder = np.log10(s[int(t),:].reshape(cellsx,cellsy))
+        elif log_boolean == 0:
+            data_holder =s[int(t),:].reshape(cellsx,cellsy)
+            
         fig = plt.figure(t,figsize = (10.,8.),facecolor='white')
         ax = fig.add_axes([0.0, 0.075, .85, .85])
         cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
-        im = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder))),extent=[x_plot[0],x_plot[-1],y_plot[0],y_plot[-1]],cmap=temp_cmap,interpolation='none')
+        im = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none')
         fig.colorbar(im, cax=cax, label = slabel, format=ticker.FuncFormatter(fmt),fraction=0.046, pad=0.04)
-        ax.set_xlim(0,x_plot[-1])
-        ax.set_ylim(0,y_plot[-1])
+        ax.set_xlim(0,y_plot[-1])
+        ax.set_ylim(0,x_plot[-1])
         ax.set_xlabel('x [m]')
         ax.set_ylabel('y [m]')
         plt.savefig(parent+'\\results\\plots\\'+filename[:-4] + '_'+ '%06d' % t + '.png',dpi=300)
@@ -88,22 +86,19 @@ def plot_SOC(x_plot,y_plot,filename_eta,filename_SOC,slabel,temp_cmap):
     data_holder_SOC = np.zeros((cellsx,cellsy))
         
     for t in range (0,s_eta.shape[0]):
-        for x in range(0,int(cellsx)):
-            for y in range(0,int(cellsy)):
-                data_holder_eta[x,y] = s_eta[int(t),int(x*cellsx+y)]
-                data_holder_SOC[x,y] = s_SOC[int(t),int(x*cellsx+y)]
+        data_holder_eta = s_eta[int(t),:].reshape(cellsx,cellsy)
+        data_holder_SOC = s_SOC[int(t),:].reshape(cellsx,cellsy)
                 
         fig = plt.figure(t,figsize = (10.,8.),facecolor='white')
         ax = fig.add_axes([0.0, 0.075, .85, .85])
         cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
         
-        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),extent=[x_plot[0],x_plot[-1],y_plot[0],y_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=0.0,vmax=0.05)
+        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=0.0,vmax=0.05)
         fig.colorbar(im1, cax=cax, label = slabel, format=ticker.FuncFormatter(fmt),fraction=0.046, pad=0.04)
         hill = ls.hillshade(np.fliplr(np.rot90(np.rot90(data_holder_eta))),vert_exag=1,dx=dx,dy=dx)
-        im2 = ax.imshow(hill,extent=[x_plot[0],x_plot[-1],y_plot[0],y_plot[-1]],cmap=cmap,alpha=0.25)
-        
-        ax.set_xlim(0,x_plot[-1])
-        ax.set_ylim(0,y_plot[-1])
+        im2 = ax.imshow(hill,extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=cmap,alpha=0.25)
+        ax.set_xlim(0,y_plot[-1])
+        ax.set_ylim(0,x_plot[-1])
         ax.set_xlabel('x [m]')
         ax.set_ylabel('y [m]')
         plt.savefig(parent+'\\results\\plots\\'+filename_SOC[:-4] + '_'+ '%06d' % t + '.png',dpi=300)
@@ -117,20 +112,16 @@ def plot_difference(x_plot,y_plot,filename,slabel,log_boolean,temp_cmap):
     if log_boolean == 1:
         s[s==0] = np.min(s[s!=0])
     
-    for x in range(0,int(s.shape[1] ** 0.5)):
-        for y in range(0,int(s.shape[1] ** 0.5)):
-            data_holder_ini[x,y] = s[0,int(x*s.shape[1] ** 0.5+y)]
+    data_holder_ini = s[0,:].reshape(cellsx,cellsy)
     for t in range (1,s.shape[0]):
-        for x in range(0,int(s.shape[1] ** 0.5)):
-            for y in range(0,int(s.shape[1] ** 0.5)):
-                data_holder[x,y] = s[int(t),int(x*s.shape[1] ** 0.5+y)] - data_holder_ini[x,y]
+        data_holder = s[int(t),:].reshape(cellsx,cellsy)
         fig = plt.figure(t,figsize = (10.,8.),facecolor='white')
         ax = fig.add_axes([0.0, 0.075, .85, .85])
         cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
-        im = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder))),extent=[x_plot[0],x_plot[-1],y_plot[0],y_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=-0.5,vmax=0.5)
+        im = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=-0.5,vmax=0.5)
         fig.colorbar(im, cax=cax, label = slabel, format=ticker.FuncFormatter(fmt),fraction=0.046, pad=0.04)
-        ax.set_xlim(0,x_plot[-1])
-        ax.set_ylim(0,y_plot[-1])
+        ax.set_xlim(0,y_plot[-1])
+        ax.set_ylim(0,x_plot[-1])
         ax.set_xlabel('x [m]')
         ax.set_ylabel('y [m]')
         plt.savefig(parent+'\\results\\plots\\'+filename[:-4] + '_difference_'+ '%06d' % t + '.png',dpi=300)

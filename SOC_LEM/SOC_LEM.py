@@ -5,13 +5,13 @@ import shutil
 import time
 
 #working directory
-parent = 'C:\\Users\\jeffs\Desktop\\UMASS-local\\SOC_LEM'
+parent = os.getcwd()
 
 #run name
-runname='willis'
+runname='willis_test'
 
 #initial condition
-ini_file = 'willis_elev.asc'
+ini_file = 'willis_elev_test.asc'
 
 #physical parameters
 U = 0.0            # [m/yr]  uplift
@@ -25,6 +25,7 @@ C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 T = 150. # [yr] Simulation Time
 dt = 1.0 # [yr] model timestep
 hole_function = 0# 0 is off and 1 is on
+dz = 0.01 #[m] soil depth grid step
 
 #output parameters
 dt_plot = 10. # [yr] plot timestep
@@ -51,6 +52,7 @@ from landlab.io import read_esri_ascii
 SOC_La = grid.add_ones('node','SOC_La')
 SOC_La *= 0.05
 SOC_transfer = grid.add_zeros('node','SOC_transfer')
+##SOC_z = np.zeros((nx,ny,100)
 #grid size and number of cells
 dx = grid.dx
 dy = grid.dy
