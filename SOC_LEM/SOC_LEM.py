@@ -8,29 +8,29 @@ import time
 parent = os.getcwd()
 
 #run name
-runname='willis_strat'
+runname='willis_strat_hole'
 
 #initial condition
-ini_file = 'willis_elev_test.asc'
+ini_file = 'willis_elev.asc'
 
 #physical parameters
 U = 0.0            # [m/yr]  uplift
 K = 0.0001      # [1/yr] vertical erodibility constant
 D = 0.1            #[m^2/yr] hillslope diffusion coefficient
 La = 0.2           # [m] active layer
-K_SOC = 0.1  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
+K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 
 #numerical parameters
 T = 300. # [yr] Simulation Time
-dt = 1.0 # [yr] model timestep
-hole_function = 0# 0 is off and 1 is on
+dt = 0.5 # [yr] model timestep
+hole_function = 1# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
 nz = 200 #dz cells
 Z = 1.0 #max deposition, erosion
 
 #output parameters
-dt_plot = 10. # [yr] plot timestep
+dt_plot = 5. # [yr] plot timestep
 
 #####HOUSEKEEPING#####
 #make output folder
@@ -57,6 +57,7 @@ SOC_La = grid.add_zeros('node','SOC_La')
 SOC_transfer = grid.add_zeros('node','SOC_transfer')
 SOC_z = np.zeros((nrows,ncols,nz))
 dz_ini = np.zeros((nrows,ncols,nz))
+z_coordinates = np.zeros((nrows,ncols,nz))
 
 for i in range(0,nrows):
     for j in range(0,ncols):
@@ -151,7 +152,6 @@ def SOC_profile_update(eta,eta_ini,dzdt,SOC_La,SOC_z):
                 
     return SOC_z
 
-
 ##### LOOP START #####
 eta_ini = eta.copy()
 for t in range(0,nt + 1):
@@ -166,6 +166,8 @@ for t in range(0,nt + 1):
         np.save(parent+'\\results\\' + 'elevation', data_elevation)
         np.save(parent+'\\results\\' + 'area', data_area)
         np.save(parent+'\\results\\' + 'soc', data_soc)
+        np.save(parent+'\\results\\' +'3D_SOC_' + '%06d' % + int(t*dt) +'yrs.npy',SOC_z)
+        np.save(parent+'\\results\\' +'3D_surface_' + '%06d' % + int(t*dt) +'yrs.npy',eta.reshape(nrows,ncols))
         
     fa.run_one_step()
     eta_old = eta.copy()
@@ -175,9 +177,8 @@ for t in range(0,nt + 1):
     dzdt = (eta - eta_old)/dt
     SOC_transfer = SOC_transfer_function(eta_old,eta_ini,dzdt,SOC_La,SOC_transfer,SOC_z)
     SOC_La[grid.core_nodes]  += dt/La * (SOC_transfer[grid.core_nodes] * dqda[grid.core_nodes]  - dqcda[grid.core_nodes] )
-    SOC_z  = SOC_profile_update(eta,eta_ini,dzdt,SOC_La,SOC_z)
+    SOC_z  = SOC_profile_update(eta,eta_ini,dzdt,SOC_La,SOC_z)        
 
-np.save('final_SOC.npy',SOC_z)
 #end time
 stop_time = time.time()
 print (str(round((stop_time -start_time )/60.,1))+' mins')
