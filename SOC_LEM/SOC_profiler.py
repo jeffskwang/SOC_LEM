@@ -14,8 +14,8 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import os
 plt.switch_backend('Agg')
-folder = 'willis_strat_no_hole'
-year = 300
+folder = 'willis_strat_La=0.2'
+year = 150
 ############################
 ###FUNCTIONS###
 ############################

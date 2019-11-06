@@ -17,14 +17,14 @@ ini_file = 'willis_elev.asc'
 U = 0.0            # [m/yr]  uplift
 K = 0.0001      # [1/yr] vertical erodibility constant
 D = 0.1            #[m^2/yr] hillslope diffusion coefficient
-La = 0.2           # [m] active layer
+La = 0.05           # [m] active layer
 K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 
 #numerical parameters
 T = 300. # [yr] Simulation Time
 dt = 0.5 # [yr] model timestep
-hole_function = 1# 0 is off and 1 is on
+hole_function = 0# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
 nz = 200 #dz cells
 Z = 1.0 #max deposition, erosion
@@ -68,7 +68,7 @@ for i in range(0,nrows):
             avg_count += 1
             SOC_La.reshape(nrows,ncols)[i,j] += SOC_z[i,j,k]
         SOC_La.reshape(nrows,ncols)[i,j] /= float(avg_count)
-            
+        
 #grid size and number of cells
 dx = grid.dx
 dy = grid.dy

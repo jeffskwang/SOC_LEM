@@ -93,7 +93,7 @@ def plot_SOC(x_plot,y_plot,filename_eta,filename_SOC,slabel,temp_cmap):
         ax = fig.add_axes([0.0, 0.075, .85, .85])
         cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
         
-        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=0.0,vmax=0.05)
+        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=0.0,vmax=0.035)
         fig.colorbar(im1, cax=cax, label = slabel, format=ticker.FuncFormatter(fmt),fraction=0.046, pad=0.04)
         hill = ls.hillshade(np.fliplr(np.rot90(np.rot90(data_holder_eta))),vert_exag=1,dx=dx,dy=dx)
         im2 = ax.imshow(hill,extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=cmap,alpha=0.25)
@@ -117,7 +117,7 @@ def plot_difference(x_plot,y_plot,filename,slabel,log_boolean,temp_cmap):
         fig = plt.figure(t,figsize = (10.,8.),facecolor='white')
         ax = fig.add_axes([0.0, 0.075, .85, .85])
         cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
-        im = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=-0.5,vmax=0.5)
+        im = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=-1.0,vmax=1.0)
         fig.colorbar(im, cax=cax, label = slabel, format=ticker.FuncFormatter(fmt),fraction=0.046, pad=0.04)
         ax.set_xlim(0,y_plot[-1])
         ax.set_ylim(0,x_plot[-1])
