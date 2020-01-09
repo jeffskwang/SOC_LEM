@@ -13,9 +13,9 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import os
-plt.switch_backend('Agg')
-folder = 'willis_strat_La=0.2'
-year = 150
+#plt.switch_backend('Agg')
+folder = 'willis_strat_hole'
+year = 100
 ############################
 ###FUNCTIONS###
 ############################

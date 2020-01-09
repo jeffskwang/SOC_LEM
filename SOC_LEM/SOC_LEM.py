@@ -11,18 +11,18 @@ parent = os.getcwd()
 runname='willis_strat_hole'
 
 #initial condition
-ini_file = 'willis_elev.asc'
+ini_file = 'willis_elev_test.asc'
 
 #physical parameters
 U = 0.0            # [m/yr]  uplift
 K = 0.0001      # [1/yr] vertical erodibility constant
-D = 0.1            #[m^2/yr] hillslope diffusion coefficient
-La = 0.05           # [m] active layer
+D = 0.2            #[m^2/yr] hillslope diffusion coefficient
+La = 0.20           # [m] active layer
 K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 
 #numerical parameters
-T = 300. # [yr] Simulation Time
+T = 150. # [yr] Simulation Time
 dt = 0.5 # [yr] model timestep
 hole_function = 0# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
@@ -80,7 +80,7 @@ data_area=[]
 data_soc=[]
 #saving parameters and initial condition
 parameter_grid = grid.node_vector_to_raster(eta,flip_vertically=True)
-np.savetxt(parent+'\\results\\'+ 'parameters_and_IC.asc',parameter_grid,delimiter='\t',newline='\n',header='runname\t' + runname+ '\ncellsx\t'+str(parameter_grid.shape[0])+'\ncellsy\t'+str(parameter_grid.shape[1])+'\ndx\t'+str(grid.dx)+'\ndy\t'+str(grid.dy)+'\nT\t'+str(T)+'\ndt\t'+str(dt)+'\nK\t'+str(K)+'\nD\t'+str(D)+'\nU\t'+str(U), comments='')
+np.savetxt(parent+'\\results\\'+ 'parameters_and_IC.asc',parameter_grid,delimiter='\t',newline='\n',header='runname\t' + runname+ '\ncellsx\t'+str(parameter_grid.shape[0])+'\ncellsy\t'+str(parameter_grid.shape[1])+'\ndx\t'+str(grid.dx)+'\ndy\t'+str(grid.dy)+'\nT\t'+str(T)+'\ndt\t'+str(dt)+'\nK\t'+str(K)+'\nD\t'+str(D)+'\nU\t'+str(U)+'\nLa\t'+str(La), comments='')
 #boundary conditions #under construction (it should have mirrored boundaries on the hilltops
 for edge in (grid.nodes_at_top_edge,grid.nodes_at_bottom_edge,grid.nodes_at_left_edge, grid.nodes_at_right_edge):
     grid.status_at_node[edge] = FIXED_VALUE_BOUNDARY

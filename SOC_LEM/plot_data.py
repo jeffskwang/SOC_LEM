@@ -78,6 +78,29 @@ def plot(x_plot,y_plot,filename,slabel,log_boolean,temp_cmap):
         plt.savefig(parent+'\\results\\plots\\'+filename[:-4] + '_'+ '%06d' % t + '.png',dpi=300)
         plt.clf()
         plt.close('all')
+         
+def plot_hillshade(x_plot,y_plot,filename_eta,slabel,temp_cmap):
+    s_eta = np.load(parent+'\\results\\'+filename_eta)
+    data_holder_eta = np.zeros((cellsx,cellsy))
+        
+    for t in range (0,s_eta.shape[0]):
+        data_holder_eta = s_eta[int(t),:].reshape(cellsx,cellsy)
+                
+        fig = plt.figure(t,figsize = (10.,8.),facecolor='white')
+        ax = fig.add_axes([0.0, 0.075, .85, .85])
+        cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
+        
+        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_eta))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none')
+        fig.colorbar(im1, cax=cax, label = slabel, format=ticker.FuncFormatter(fmt),fraction=0.046, pad=0.04)
+        hill = ls.hillshade(np.fliplr(np.rot90(np.rot90(data_holder_eta))),vert_exag=1,dx=dx,dy=dx)
+        im2 = ax.imshow(hill,extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=cmap,alpha=0.5)
+        ax.set_xlim(0,y_plot[-1])
+        ax.set_ylim(0,x_plot[-1])
+        ax.set_xlabel('x [m]')
+        ax.set_ylabel('y [m]')
+        plt.savefig(parent+'\\results\\plots\\hillshade_'+ '%06d' % t + '.png',dpi=300)
+        plt.clf()
+        plt.close('all')
         
 def plot_SOC(x_plot,y_plot,filename_eta,filename_SOC,slabel,temp_cmap):
     s_eta = np.load(parent+'\\results\\'+filename_eta)
@@ -129,6 +152,8 @@ def plot_difference(x_plot,y_plot,filename,slabel,log_boolean,temp_cmap):
 
 print ('Plotting Elevation...')
 plot(x_plot,y_plot,'elevation.npy', r'$\eta$ [$m$]',0,cmap)
+print ('Plotting Hillsahde...')
+plot_hillshade(x_plot,y_plot,'elevation.npy', r'$\eta$ [$m$]',cmap)
 print ('Plotting Drainage Area...')
 plot(x_plot,y_plot,'area.npy', r'$log(A)$ [$-$]',1,cmap)
 print ('Plotting SOC...')
