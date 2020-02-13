@@ -15,12 +15,12 @@ import matplotlib.pyplot as plt
 import os
 #plt.switch_backend('Agg')
 folder = 'willis_strat_hole'
-year = 100
+year = 400
 ############################
 ###FUNCTIONS###
 ############################
 
-def plot_setup_color(plot_array,x,y,eta,xlabel,ylabel):
+def plot_setup_color(plot_array,x,y,eta,eta_ini,xlabel,ylabel):
     width_pixel,height_pixel = plot_array.shape[0], plot_array.shape[1]
     fig = Figure(figsize=(float(width_pixel)/100.,float(height_pixel)/100.),dpi=100)
     ax = fig.gca()
@@ -30,9 +30,11 @@ def plot_setup_color(plot_array,x,y,eta,xlabel,ylabel):
     Y = np.zeros((nz,pixels))
     for i in xrange(0,x.shape[0]):
         X[:,i] = x[i]
-        Y[:,i] = np.linspace(1,-1,200) +eta[i]
+        Y[:,i] = np.linspace(1.,-1.,200) + eta_ini[i]
 
     im = ax.pcolor(X,Y,np.rot90(y))
+    ax.plot(x,eta,color='k')
+    ax.plot(x,eta_ini,color='r')
         
     fig.set_tight_layout(True)
     canvas = FigureCanvas(fig)
@@ -81,6 +83,7 @@ f_rate = 60
 ###RASTERS###
 ############################
 parent_folder = os.getcwd() +'\\' + folder+'\\'
+DEM_INI = np.rot90(np.load(parent_folder+'3D_surface_' + '%06d' % + int(0) +'yrs.npy'))
 DEM = np.rot90(np.load(parent_folder+'3D_surface_' + '%06d' % + int(year) +'yrs.npy'))
 SOC = np.rot90(np.load(parent_folder+'3D_SOC_' + '%06d' % + int(year) +'yrs.npy'))
 min_ele = np.min(DEM)
@@ -165,6 +168,7 @@ while not gameExit:
         y_arr = np.linspace(float(y_start_DEM),float(y_end_DEM),pixels)
         l_arr = np.linspace(0,np.sqrt((float(x_start_DEM )-float(x_end_DEM ))**2.0+(float(y_start_DEM )-float(y_end_DEM ))**2.0),pixels) * dx
         eta_arr = np.zeros(pixels)
+        eta_ini_arr = np.zeros(pixels)
         SOC_arr = np.zeros((pixels,nz))
         for ijk in xrange(0,pixels):
             x_lower = int(x_arr[ijk])
@@ -175,10 +179,16 @@ while not gameExit:
             mean_2 = (DEM[x_upper,y_upper] - DEM[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_upper,y_lower]
             mean_3 = (mean_2 - mean_1) * (x_arr[ijk] - float(x_lower)) + mean_1
             eta_arr[ijk] = mean_3
+            
+            mean_ini_1 = (DEM_INI[x_lower,y_upper] - DEM_INI[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_lower,y_lower]
+            mean_ini_2 = (DEM_INI[x_upper,y_upper] - DEM_INI[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_upper,y_lower]
+            mean_ini_3 = (mean_ini_2 - mean_ini_1) * (x_arr[ijk] - float(x_lower)) + mean_ini_1
+            eta_ini_arr[ijk] = mean_ini_3
+            
             SOC_arr[ijk,:] = SOC[int(x_lower + 0.5),int(y_lower + 0.5),:]
         
         plot_1 = plot_setup(plot_1,l_arr,eta_arr,'L [$m$]',r'$\eta$ [$m$]')
-        plot_2 = plot_setup_color(plot_2,l_arr,SOC_arr,eta_arr,'L [$m$]',r'z [$m$]')        
+        plot_2 = plot_setup_color(plot_2,l_arr,SOC_arr,eta_arr,eta_ini_arr,'L [$m$]',r'z [$m$]')        
         
 ##    if event.type == pygame.KEYUP:
 ##        if event.key == pygame.K_UP:

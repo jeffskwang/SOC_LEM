@@ -22,7 +22,7 @@ K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 
 #numerical parameters
-T = 150. # [yr] Simulation Time
+T = 50. # [yr] Simulation Time
 dt = 0.5 # [yr] model timestep
 hole_function = 0# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
@@ -30,7 +30,7 @@ nz = 200 #dz cells
 Z = 1.0 #max deposition, erosion
 
 #output parameters
-dt_plot = 5. # [yr] plot timestep
+dt_plot = 10. # [yr] plot timestep
 
 #####HOUSEKEEPING#####
 #make output folder
@@ -156,6 +156,7 @@ def SOC_profile_update(eta,eta_ini,dzdt,SOC_La,SOC_z):
 eta_ini = eta.copy()
 for t in range(0,nt + 1):
     if t%nt_plot == 0:
+        print eta[grid.core_nodes] - eta_ini[grid.core_nodes]
         print ('Time = ' + str(t * dt) + ' yrs; ' + str(int(float(t)*dt/T*1000.)/10.) + '% done')
         #Append the new data
         data_elevation.append(grid.at_node['topographic__elevation'].copy())
