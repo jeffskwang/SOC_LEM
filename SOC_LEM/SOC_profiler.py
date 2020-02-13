@@ -11,11 +11,12 @@ import pygame
 import numpy as np
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+import matplotlib
 import matplotlib.pyplot as plt
 import os
 #plt.switch_backend('Agg')
 folder = 'willis_strat_hole'
-year = 400
+year = 300
 ############################
 ###FUNCTIONS###
 ############################
@@ -26,13 +27,17 @@ def plot_setup_color(plot_array,x,y,eta,eta_ini,xlabel,ylabel):
     ax = fig.gca()
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    X = np.zeros((nz,pixels))
-    Y = np.zeros((nz,pixels))
-    for i in xrange(0,x.shape[0]):
-        X[:,i] = x[i]
-        Y[:,i] = np.linspace(1.,-1.,200) + eta_ini[i]
-
-    im = ax.pcolor(X,Y,np.rot90(y))
+    X = np.zeros((nz,pixels+1))
+    Y = np.zeros((nz,pixels+1))
+    
+    for i in xrange(0,x.shape[0]+1):
+        if i == 0:
+            X[:,i] = x[i]
+            Y[:,i] = np.linspace(1.,-1.,200) + eta_ini[i]
+        else:
+            X[:,i] = x[i-1]
+            Y[:,i] = np.linspace(1.,-1.,200) + eta_ini[i-1]
+    im = ax.pcolor(X,Y,np.rot90(y),cmap=new_cmap)
     ax.plot(x,eta,color='k')
     ax.plot(x,eta_ini,color='r')
         
@@ -78,6 +83,17 @@ scale = 4
 
 #frame rate
 f_rate = 60
+
+#color map
+import matplotlib.colors as colors
+def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
+    new_cmap = colors.LinearSegmentedColormap.from_list(
+        'trunc({n},{a:.2f},{b:.2f})'.format(n=cmap.name, a=minval, b=maxval),
+        cmap(np.linspace(minval, maxval, n)))
+    return new_cmap
+
+new_cmap = truncate_colormap(matplotlib.cm.BrBG_r, 0.7, 1.0)
+
 
 ############################
 ###RASTERS###
@@ -129,9 +145,11 @@ plot_1 = np.zeros((int(res_height*scale),int(res_height*scale),3),dtype=int)
 plot_2 = np.zeros((int(res_height*scale),int(res_height*scale),3),dtype=int)
 
 x_start,y_start,x_end,y_end = 0.0,0.0,0.0,0.0
-pixels = 101
+pixels = 501
 dx = 2.95302823
 nz = SOC.shape[2]
+SOC_blank = np.empty(nz)
+SOC_blank[:] = np.NaN
 
 ##############################
 #####MAIN LOOP###
@@ -170,22 +188,33 @@ while not gameExit:
         eta_arr = np.zeros(pixels)
         eta_ini_arr = np.zeros(pixels)
         SOC_arr = np.zeros((pixels,nz))
+        x_curr,y_curr=int(x_arr[0]),int(y_arr[0])
         for ijk in xrange(0,pixels):
             x_lower = int(x_arr[ijk])
             x_upper = x_lower + 1
             y_lower = int(y_arr[ijk])
             y_upper = y_lower + 1
-            mean_1 = (DEM[x_lower,y_upper] - DEM[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_lower,y_lower]
-            mean_2 = (DEM[x_upper,y_upper] - DEM[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_upper,y_lower]
-            mean_3 = (mean_2 - mean_1) * (x_arr[ijk] - float(x_lower)) + mean_1
-            eta_arr[ijk] = mean_3
             
-            mean_ini_1 = (DEM_INI[x_lower,y_upper] - DEM_INI[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_lower,y_lower]
-            mean_ini_2 = (DEM_INI[x_upper,y_upper] - DEM_INI[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_upper,y_lower]
-            mean_ini_3 = (mean_ini_2 - mean_ini_1) * (x_arr[ijk] - float(x_lower)) + mean_ini_1
-            eta_ini_arr[ijk] = mean_ini_3
+##            SOC_arr[ijk,:] = SOC[int(x_lower + 0.5),int(y_lower + 0.5),:]
+##            
+##            y_upper = y_lower + 1
+##            mean_1 = (DEM[x_lower,y_upper] - DEM[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_lower,y_lower]
+##            mean_2 = (DEM[x_upper,y_upper] - DEM[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_upper,y_lower]
+##            mean_3 = (mean_2 - mean_1) * (x_arr[ijk] - float(x_lower)) + mean_1
+##            eta_arr[ijk] = mean_3
+##            
+##            mean_ini_1 = (DEM_INI[x_lower,y_upper] - DEM_INI[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_lower,y_lower]
+##            mean_ini_2 = (DEM_INI[x_upper,y_upper] - DEM_INI[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_upper,y_lower]
+##            mean_ini_3 = (mean_ini_2 - mean_ini_1) * (x_arr[ijk] - float(x_lower)) + mean_ini_1
+##            eta_ini_arr[ijk] = mean_ini_3
             
-            SOC_arr[ijk,:] = SOC[int(x_lower + 0.5),int(y_lower + 0.5),:]
+            if x_curr != x_lower or y_curr != y_lower:
+                SOC_arr[ijk,:] = SOC_blank
+                x_curr,y_curr=x_lower,y_lower
+            else:
+                SOC_arr[ijk,:] = SOC[int(x_lower + 0.5),int(y_lower + 0.5),:]
+            eta_arr[ijk] = DEM[int(x_lower + 0.5),int(y_lower + 0.5)]
+            eta_ini_arr[ijk] = DEM_INI[int(x_lower + 0.5),int(y_lower + 0.5)]
         
         plot_1 = plot_setup(plot_1,l_arr,eta_arr,'L [$m$]',r'$\eta$ [$m$]')
         plot_2 = plot_setup_color(plot_2,l_arr,SOC_arr,eta_arr,eta_ini_arr,'L [$m$]',r'z [$m$]')        
