@@ -14,9 +14,9 @@ from matplotlib.figure import Figure
 import matplotlib
 import matplotlib.pyplot as plt
 import os
-#plt.switch_backend('Agg')
+#plt.switch_backend('Agg') fgtf <--- pillsbury's comtribution
 folder = 'willis_strat_hole'
-year = 300
+
 ############################
 ###FUNCTIONS###
 ############################
@@ -82,7 +82,7 @@ def plot_setup(plot_array,x,y,xlabel,ylabel):
 scale = 4
 
 #frame rate
-f_rate = 60
+f_rate = 10
 
 #color map
 import matplotlib.colors as colors
@@ -99,9 +99,15 @@ new_cmap = truncate_colormap(matplotlib.cm.BrBG_r, 0.7, 1.0)
 ###RASTERS###
 ############################
 parent_folder = os.getcwd() +'\\' + folder+'\\'
+year_list = []
+year_int = 0
+for filename in os.listdir(parent_folder):
+    if filename.startswith('3D_surface_'):
+        year_list.append(int(filename[11:-7]))
+    
 DEM_INI = np.rot90(np.load(parent_folder+'3D_surface_' + '%06d' % + int(0) +'yrs.npy'))
-DEM = np.rot90(np.load(parent_folder+'3D_surface_' + '%06d' % + int(year) +'yrs.npy'))
-SOC = np.rot90(np.load(parent_folder+'3D_SOC_' + '%06d' % + int(year) +'yrs.npy'))
+DEM = np.rot90(np.load(parent_folder+'3D_surface_' + '%06d' % + int(year_list[year_int]) +'yrs.npy'))
+SOC = np.rot90(np.load(parent_folder+'3D_SOC_' + '%06d' % + int(year_list[year_int]) +'yrs.npy'))
 min_ele = np.min(DEM)
 max_ele = np.max(DEM)
 SOC[SOC==0]=np.nan
@@ -115,6 +121,7 @@ res_height = DEM.shape[1]
 #initialize pygame
 zzz = pygame.init()
 key_down = 0
+change_data = 0
 
 #make game display
 gameDisplay = pygame.display.set_mode((int(res_width * scale + res_height * scale),int(res_height * scale)))
@@ -122,7 +129,8 @@ gameDisplay = pygame.display.set_mode((int(res_width * scale + res_height * scal
 #font
 font = pygame.font.SysFont('arial',20)
 text1 = font.render('A', True, (255,0,0)) 
-text2 = font.render('A\'', True, (255,0,0)) 
+text2 = font.render('A\'', True, (255,0,0))
+text_year = font.render(str(year_list[year_int]) + ' years of erosion', True,(255,0,0))
   
 #set title of game
 pygame.display.set_caption('dem')
@@ -161,12 +169,31 @@ while not gameExit:
         if event.type == pygame.QUIT:
             gameExit = True
 
-##    if event.type == pygame.KEYDOWN:
-##        if event.key == pygame.K_UP and key_down == 0:
-##            key_down = 1
-##        if event.key == pygame.K_DOWN and key_down == 0:
-##            key_down = 1
+    if event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_UP and key_down == 0:
+            key_down = 1
+            year_int += 1
+            if year_int > (len(year_list) - 1):
+                year_int = len(year_list) - 1
+            else:
+                change_data = 1
+        if event.key == pygame.K_DOWN and key_down == 0:
+            key_down = 1
+            year_int -= 1
+            if year_int < 0:
+                year_int = 0
+            else:
+                change_data = 1
 
+    if change_data == 1:
+        DEM = np.rot90(np.load(parent_folder+'3D_surface_' + '%06d' % + int(year_list[year_int]) +'yrs.npy'))
+        SOC = np.rot90(np.load(parent_folder+'3D_SOC_' + '%06d' % + int(year_list[year_int]) +'yrs.npy'))
+        min_ele = np.min(DEM)
+        max_ele = np.max(DEM)
+        SOC[SOC==0]=np.nan
+        text_year = font.render(str(year_list[year_int]) + ' years of erosion', True,(255,0,0))
+        change_data = 0
+        
     if pygame.mouse.get_pressed()[0]:
         (x_mouse,y_mouse) = event.pos
         x_start = int(x_mouse/scale)
@@ -195,19 +222,6 @@ while not gameExit:
             y_lower = int(y_arr[ijk])
             y_upper = y_lower + 1
             
-##            SOC_arr[ijk,:] = SOC[int(x_lower + 0.5),int(y_lower + 0.5),:]
-##            
-##            y_upper = y_lower + 1
-##            mean_1 = (DEM[x_lower,y_upper] - DEM[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_lower,y_lower]
-##            mean_2 = (DEM[x_upper,y_upper] - DEM[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_upper,y_lower]
-##            mean_3 = (mean_2 - mean_1) * (x_arr[ijk] - float(x_lower)) + mean_1
-##            eta_arr[ijk] = mean_3
-##            
-##            mean_ini_1 = (DEM_INI[x_lower,y_upper] - DEM_INI[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_lower,y_lower]
-##            mean_ini_2 = (DEM_INI[x_upper,y_upper] - DEM_INI[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_upper,y_lower]
-##            mean_ini_3 = (mean_ini_2 - mean_ini_1) * (x_arr[ijk] - float(x_lower)) + mean_ini_1
-##            eta_ini_arr[ijk] = mean_ini_3
-            
             if x_curr != x_lower or y_curr != y_lower:
                 SOC_arr[ijk,:] = SOC_blank
                 x_curr,y_curr=x_lower,y_lower
@@ -219,11 +233,11 @@ while not gameExit:
         plot_1 = plot_setup(plot_1,l_arr,eta_arr,'L [$m$]',r'$\eta$ [$m$]')
         plot_2 = plot_setup_color(plot_2,l_arr,SOC_arr,eta_arr,eta_ini_arr,'L [$m$]',r'z [$m$]')        
         
-##    if event.type == pygame.KEYUP:
-##        if event.key == pygame.K_UP:
-##            key_down = 0 
-##        if event.key == pygame.K_DOWN:
-##            key_down = 0 
+    if event.type == pygame.KEYUP:
+        if event.key == pygame.K_UP:
+            key_down = 0 
+        if event.key == pygame.K_DOWN:
+            key_down = 0 
 
     game_display_array[:,:,0] = ((DEM) - min_ele) / (max_ele - min_ele) * 255
     game_display_array[:,:,1] = ((DEM) - min_ele) / (max_ele - min_ele) * 255
@@ -239,6 +253,7 @@ while not gameExit:
     pygame.draw.line(gameDisplay,(255,0,0),[x_start*scale,y_start*scale],[x_end*scale,y_end*scale]) 
     gameDisplay.blit(text1,(x_start*scale,y_start*scale))
     gameDisplay.blit(text2,(x_end*scale,y_end*scale))
+    gameDisplay.blit(text_year,(0.01 * res_width*scale,0.01 * res_height*scale))
     
     #update screen
     pygame.display.update()
@@ -247,3 +262,22 @@ while not gameExit:
 #unintialize and quit pygame
 pygame.quit()
 quit()
+
+
+
+###Extras
+
+#bilinear interpolation
+            
+##            SOC_arr[ijk,:] = SOC[int(x_lower + 0.5),int(y_lower + 0.5),:]
+##            
+##            y_upper = y_lower + 1
+##            mean_1 = (DEM[x_lower,y_upper] - DEM[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_lower,y_lower]
+##            mean_2 = (DEM[x_upper,y_upper] - DEM[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM[x_upper,y_lower]
+##            mean_3 = (mean_2 - mean_1) * (x_arr[ijk] - float(x_lower)) + mean_1
+##            eta_arr[ijk] = mean_3
+##            
+##            mean_ini_1 = (DEM_INI[x_lower,y_upper] - DEM_INI[x_lower,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_lower,y_lower]
+##            mean_ini_2 = (DEM_INI[x_upper,y_upper] - DEM_INI[x_upper,y_lower]) * (y_arr[ijk] - float(y_lower)) + DEM_INI[x_upper,y_lower]
+##            mean_ini_3 = (mean_ini_2 - mean_ini_1) * (x_arr[ijk] - float(x_lower)) + mean_ini_1
+##            eta_ini_arr[ijk] = mean_ini_3
