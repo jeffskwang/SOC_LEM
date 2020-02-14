@@ -5,13 +5,13 @@ import shutil
 import time
 
 #working directory
-parent = os.getcwd()
+parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'#os.getcwd()
 
 #run name
 runname='willis_strat_hole'
 
 #initial condition
-ini_file = 'willis_elev_test.asc'
+ini_file = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM\\SOC_LEM\\input\\willis_elev_test.asc'
 
 #physical parameters
 U = 0.0            # [m/yr]  uplift
@@ -22,7 +22,7 @@ K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 
 #numerical parameters
-T = 50. # [yr] Simulation Time
+T = 250. # [yr] Simulation Time
 dt = 0.5 # [yr] model timestep
 hole_function = 0# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
@@ -30,7 +30,7 @@ nz = 200 #dz cells
 Z = 1.0 #max deposition, erosion
 
 #output parameters
-dt_plot = 10. # [yr] plot timestep
+dt_plot = 25. # [yr] plot timestep
 
 #####HOUSEKEEPING#####
 #make output folder
@@ -49,7 +49,7 @@ from landlab.components import LateralEroder
 from landlab.utils import structured_grid
 from landlab.io import read_esri_ascii
 #load initial condition
-(grid, eta) = read_esri_ascii(parent + '\\input\\' + ini_file, name='topographic__elevation')
+(grid, eta) = read_esri_ascii(ini_file, name='topographic__elevation')
 nrows = grid.number_of_node_rows
 ncols = grid.number_of_node_columns
 #define arrays
@@ -156,7 +156,6 @@ def SOC_profile_update(eta,eta_ini,dzdt,SOC_La,SOC_z):
 eta_ini = eta.copy()
 for t in range(0,nt + 1):
     if t%nt_plot == 0:
-        print eta[grid.core_nodes] - eta_ini[grid.core_nodes]
         print ('Time = ' + str(t * dt) + ' yrs; ' + str(int(float(t)*dt/T*1000.)/10.) + '% done')
         #Append the new data
         data_elevation.append(grid.at_node['topographic__elevation'].copy())

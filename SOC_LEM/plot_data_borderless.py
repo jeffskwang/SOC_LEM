@@ -12,7 +12,7 @@ ls = LightSource(azdeg=315, altdeg=15)
 hillshade_boolean = 1
 
 cmap = matplotlib.cm.gray
-parent = os.getcwd()
+parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'#os.getcwd()
 
 if os.path.isdir(parent+'\\results\\plots')==False:
     os.makedirs(parent+'\\results\\plots')

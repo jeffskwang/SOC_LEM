@@ -15,7 +15,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import os
 #plt.switch_backend('Agg') fgtf <--- pillsbury's comtribution
-folder = 'willis_strat_hole'
+
+parent_folder = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results\\results\\'#os.getcwd()
 
 ############################
 ###FUNCTIONS###
@@ -38,7 +39,7 @@ def plot_setup_color(plot_array,x,y,eta,eta_ini,xlabel,ylabel):
             X[:,i] = x[i-1]
             Y[:,i] = np.linspace(1.,-1.,200) + eta_ini[i-1]
     im = ax.pcolor(X,Y,np.rot90(y),cmap=new_cmap)
-    ax.plot(x,eta,color='k')
+    #ax.plot(x,eta,color='k')
     ax.plot(x,eta_ini,color='r')
         
     fig.set_tight_layout(True)
@@ -94,11 +95,9 @@ def truncate_colormap(cmap, minval=0.0, maxval=1.0, n=100):
 
 new_cmap = truncate_colormap(matplotlib.cm.BrBG_r, 0.7, 1.0)
 
-
 ############################
 ###RASTERS###
 ############################
-parent_folder = os.getcwd() +'\\' + folder+'\\'
 year_list = []
 year_int = 0
 for filename in os.listdir(parent_folder):
@@ -122,6 +121,7 @@ res_height = DEM.shape[1]
 zzz = pygame.init()
 key_down = 0
 change_data = 0
+redraw_plot = 0
 
 #make game display
 gameDisplay = pygame.display.set_mode((int(res_width * scale + res_height * scale),int(res_height * scale)))
@@ -193,6 +193,7 @@ while not gameExit:
         SOC[SOC==0]=np.nan
         text_year = font.render(str(year_list[year_int]) + ' years of erosion', True,(255,0,0))
         change_data = 0
+        redraw_plot = 1
         
     if pygame.mouse.get_pressed()[0]:
         (x_mouse,y_mouse) = event.pos
@@ -204,7 +205,8 @@ while not gameExit:
         x_end = int(x_mouse/scale)
         y_end = int(y_mouse/scale)
 
-    if pygame.mouse.get_pressed()[1]:
+    if pygame.mouse.get_pressed()[1] or redraw_plot == 1:
+        redraw_plot = 0
         x_start_DEM = int(res_width)-x_start-1 
         y_start_DEM = int(res_height)-y_start-1
         x_end_DEM = int(res_width)-x_end-1
