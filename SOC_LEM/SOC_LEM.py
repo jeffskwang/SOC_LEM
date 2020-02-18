@@ -4,14 +4,21 @@ import os
 import shutil
 import time
 
+###laptop
+###working directory
+##parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'
+###initial condition
+##ini_file = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM\\SOC_LEM\\input\\willis_elev_test.asc'
+
+#umass desktop
 #working directory
-parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'#os.getcwd()
+parent = 'C:\\Users\\jkwang\\Desktop\\SOC_LEM_results'
+#initial condition
+ini_file = 'C:\\Users\\jkwang\\Desktop\\SOC_LEM\\SOC_LEM\\input\\willis_elev_test.asc'
 
 #run name
 runname='willis_strat_hole'
 
-#initial condition
-ini_file = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM\\SOC_LEM\\input\\willis_elev_test.asc'
 
 #physical parameters
 U = 0.0            # [m/yr]  uplift
