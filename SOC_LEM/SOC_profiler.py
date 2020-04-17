@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 import matplotlib
 import matplotlib.pyplot as plt
 import os
-#plt.switch_backend('Agg') fgtf <--- pillsbury's comtribution
+#plt.switch_backend('Agg') fgtf <--- pillsbury's contribution
 
 parent_folder = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results\\results\\'#os.getcwd()
 
