@@ -12,8 +12,8 @@ ls = LightSource(azdeg=315, altdeg=15)
 hillshade_boolean = 1
 
 cmap = matplotlib.cm.gray
-##parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'#laptop
-parent = 'C:\\Users\\jkwang\\Desktop\\SOC_LEM_results'#umass desktop
+parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'#laptop
+##parent = 'C:\\Users\\jkwang\\Desktop\\SOC_LEM_results'#umass desktop
 
 if os.path.isdir(parent+'\\results\\plots')==False:
     os.makedirs(parent+'\\results\\plots')
@@ -117,7 +117,9 @@ def plot_SOC(x_plot,y_plot,filename_eta,filename_SOC,slabel,temp_cmap):
         ax = fig.add_axes([0.0, 0.075, .85, .85])
         cax = fig.add_axes([0.8, 0.075, 0.02, 0.85])
         
-        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=0.0,vmax=0.035)
+        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),\
+                        extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],\
+                        cmap=temp_cmap,interpolation='none',vmin=2.0,vmax=8.0)
         fig.colorbar(im1, cax=cax, label = slabel, format=ticker.FuncFormatter(fmt),fraction=0.046, pad=0.04)
         hill = ls.hillshade(np.fliplr(np.rot90(np.rot90(data_holder_eta))),vert_exag=1,dx=dx,dy=dx)
         im2 = ax.imshow(hill,extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=cmap,alpha=0.25)

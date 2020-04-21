@@ -12,24 +12,28 @@ import time
 
 #umass desktop
 #working directory
-parent = 'C:\\Users\\jkwang\\Desktop\\SOC_LEM_results'
+parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'
 #initial condition
-ini_file = 'C:\\Users\\jkwang\\Desktop\\SOC_LEM\\SOC_LEM\\input\\willis_elev_test.asc'
+ini_file = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM\\SOC_LEM\\input\\willis_elev_test.asc'
 
 #run name
-runname='willis_strat_hole'
+runname='SOCI_test_L=0.1'
 
 
 #physical parameters
 U = 0.0            # [m/yr]  uplift
 K = 0.0001      # [1/yr] vertical erodibility constant
-D = 0.2            #[m^2/yr] hillslope diffusion coefficient
-La = 0.20           # [m] active layer
-K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
-C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
+D = (0.4337 + 0.314 + 0.2817) / 3.0            #[m^2/yr] hillslope diffusion coefficient
+La = 0.1           # [m] active layer
+##K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
+##C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
+K_SOCI =  4.5 
+C_SOCI = 6.0 #SOCI [-] = A_SOCI + K_SOCI * exp(- K_SOCI * z)
+A_SOCI = 2.0
+
 
 #numerical parameters
-T = 250. # [yr] Simulation Time
+T = 160. # [yr] Simulation Time
 dt = 0.5 # [yr] model timestep
 hole_function = 0# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
@@ -37,7 +41,7 @@ nz = 200 #dz cells
 Z = 1.0 #max deposition, erosion
 
 #output parameters
-dt_plot = 25. # [yr] plot timestep
+dt_plot = 20. # [yr] plot timestep
 
 #####HOUSEKEEPING#####
 #make output folder
@@ -69,7 +73,8 @@ z_coordinates = np.zeros((nrows,ncols,nz))
 for i in range(0,nrows):
     for j in range(0,ncols):
         dz_ini[i,j,:] = np.linspace(-Z + dz / 2.0, Z - dz / 2.0, nz)
-        SOC_z[i,j,0:int(nz/2)] = C_SOC * np.exp(dz_ini[i,j,0:int(nz/2)] / K_SOC)
+##        SOC_z[i,j,0:int(nz/2)] = C_SOC * np.exp(dz_ini[i,j,0:int(nz/2)] / K_SOC)
+        SOC_z[i,j,0:int(nz/2)] = A_SOCI + C_SOCI * np.exp(dz_ini[i,j,0:int(nz/2)] * K_SOCI)
         avg_count = 0
         for k in range(int(nz/2 - La / dz),int(nz/2)):
             avg_count += 1
