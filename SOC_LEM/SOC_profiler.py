@@ -17,7 +17,7 @@ import os
 #plt.switch_backend('Agg') fgtf <--- pillsbury's contribution
 
 ##parent_folder = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results\\results\\'#laptop
-parent_folder = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results\\SOCI_test_L=0.1\\'#umass desktop
+parent_folder = 'D:\\SOC_LEM\\SOC_LEM_results\\results\\'#umass desktop
 
 
 ############################

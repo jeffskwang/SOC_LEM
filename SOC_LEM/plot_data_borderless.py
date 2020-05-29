@@ -13,7 +13,7 @@ hillshade_boolean = 1
 
 cmap = matplotlib.cm.gray
 ##parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'#laptop
-parent = 'C:\\Users\\jkwang\\Desktop\\SOC_LEM_results'#umass desktop
+parent = 'D:\\SOC_LEM\\SOC_LEM_results\\SOCI_test_L=0.1_D=0.2'#umass desktop
 
 if os.path.isdir(parent+'\\results\\plots')==False:
     os.makedirs(parent+'\\results\\plots')
@@ -90,7 +90,7 @@ def plot_SOC(x_plot,y_plot,filename_eta,filename_SOC,slabel,temp_cmap):
         fig = plt.figure(t,figsize = (15.,21.),facecolor='white')
         ax = plt.axes([0,0,1,1])
         
-        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=0.0,vmax=0.035)
+        im1 = ax.imshow(np.fliplr(np.rot90(np.rot90(data_holder_SOC))),extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=temp_cmap,interpolation='none',vmin=2.0,vmax=8.0)
         hill = ls.hillshade(np.fliplr(np.rot90(np.rot90(data_holder_eta))),vert_exag=1,dx=dx,dy=dx)
         im2 = ax.imshow(hill,extent=[y_plot[0],y_plot[-1],x_plot[0],x_plot[-1]],cmap=cmap,alpha=0.25)
         ax.set_xlim(0,y_plot[-1])
@@ -105,6 +105,6 @@ print ('Plotting Elevation...')
 plot(x_plot,y_plot,'elevation.npy', r'$\eta$ [$m$]',0,cmap)
 print ('Plotting SOC...')
 plot_SOC(x_plot,y_plot,'elevation.npy','soc.npy', r'SOC [% by wt.]',new_cmap)
-print ('renaming...')
-os.rename(parent+'\\results',parent+'\\'+runname)
+##print ('renaming...')
+##os.rename(parent+'\\results',parent+'\\'+runname)
 

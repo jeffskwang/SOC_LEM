@@ -12,29 +12,28 @@ import time
 
 #umass desktop
 #working directory
-parent = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM_results'
+parent = 'D:\\SOC_LEM\\SOC_LEM_results'
 #initial condition
-ini_file = 'C:\\Users\\jeffs\\Desktop\\SOC_LEM\\SOC_LEM\\input\\willis_elev_test.asc'
+ini_file = 'D:\\SOC_LEM\\SOC_LEM\\SOC_LEM\\input\\willis_2_dem.txt'
 
 #run name
-runname='SOCI_test_L=0.1'
-
+runname='testtesttest'
 
 #physical parameters
 U = 0.0            # [m/yr]  uplift
-K = 0.0001      # [1/yr] vertical erodibility constant
-D = (0.4337 + 0.314 + 0.2817) / 3.0            #[m^2/yr] hillslope diffusion coefficient
-La = 0.1           # [m] active layer
+K = 0.005      # [1/yr] vertical erodibility constant
+D = 0.4 #(0.4337 + 0.314 + 0.2817) / 3.0            #[m^2/yr] hillslope diffusion coefficient
+La = 0.2          # [m] active layer
 ##K_SOC = 0.3  # [m] SOC exponent, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
 ##C_SOC = 0.05# [1/m] SOC coeffcieint, i.e. SOC[z] = C_SOC * exp(-z/K_SOC)
-K_SOCI =  4.5 
-C_SOCI = 6.0 #SOCI [-] = A_SOCI + K_SOCI * exp(- K_SOCI * z)
-A_SOCI = 2.0
+K_SOCI =  4.00
+C_SOCI = 6.0 #SOCI [-] = A_SOCI + C_SOCI * exp(- K_SOCI * z)
+A_SOCI = 1.5
 
 
 #numerical parameters
-T = 160. # [yr] Simulation Time
-dt = 0.5 # [yr] model timestep
+T = 200. # [yr] Simulation Time
+dt = 0.05 # [yr] model timestep
 hole_function = 0# 0 is off and 1 is on
 dz = 0.01 #[m] soil depth grid step
 nz = 200 #dz cells
@@ -114,7 +113,18 @@ start_time = time.time()
 def soil_and_SOC_transport(eta,SOC_La):
     dzdx = grid.calc_grad_at_link(eta)
     SOC_La_uphill = grid.map_value_at_max_node_to_link(eta,SOC_La)
-    q = - D * dzdx
+    q = - D * dzdx 
+    qc = q * SOC_La_uphill
+    dqda = grid.calc_flux_div_at_node(q)
+    dqcda = grid.calc_flux_div_at_node(qc)
+
+    return dqda,dqcda
+
+def soil_and_SOC_transport_II(eta,SOC_La,area):
+    dzdx = grid.calc_grad_at_link(eta)
+    SOC_La_uphill = grid.map_value_at_max_node_to_link(eta,SOC_La)
+    area_uphill = grid.map_value_at_max_node_to_link(eta,area)#NOT right!
+    q = - D * dzdx - K * area_uphill * dzdx
     qc = q * SOC_La_uphill
     dqda = grid.calc_flux_div_at_node(q)
     dqcda = grid.calc_flux_div_at_node(qc)
@@ -183,8 +193,9 @@ for t in range(0,nt + 1):
         
     fa.run_one_step()
     eta_old = eta.copy()
-    sp.run_one_step(dt)
-    dqda,dqcda = soil_and_SOC_transport(eta,SOC_La)
+##    sp.run_one_step(dt)
+##    dqda,dqcda = soil_and_SOC_transport(eta,SOC_La)
+    dqda,dqcda = soil_and_SOC_transport_II(eta,SOC_La,grid.at_node['drainage_area'])
     eta[grid.core_nodes] += dt *(U - dqda[grid.core_nodes])
     dzdt = (eta - eta_old)/dt
     SOC_transfer = SOC_transfer_function(eta_old,eta_ini,dzdt,SOC_La,SOC_transfer,SOC_z)
